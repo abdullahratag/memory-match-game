@@ -113,19 +113,54 @@ class GameBoard
         } 
 };
 
+enum GameScreen { MENU, GAMEPLAY, GAME_OVER };
+const int screenWidth = 800;
+const int screenHeight = 600;
+
 int main(void) 
 {
-    const int screenWidth = 800;
-    const int screenHeight = 600;
     InitWindow(screenWidth, screenHeight, "Memory Match Game");
     SetTargetFPS(60);
+    GameScreen currentScreen = MENU;
+    GameBoard* board = nullptr;
+    int gameDimension = 0;
 
     while (!WindowShouldClose()) 
     {
+        Vector2 mousePoint = GetMousePosition();
+        switch (currentScreen){
+            case MENU: {
+                if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
+                    if(CheckCollisionPointRec(mousePoint, {250, 200, 300, 50})) { gameDimension = 2;}
+                    if(CheckCollisionPointRec(mousePoint, {250, 270, 300, 50})) { gameDimension = 4;}
+                    if(CheckCollisionPointRec(mousePoint, {250, 340, 300, 50})) { gameDimension = 2;}
+                    if(CheckCollisionPointRec(mousePoint, {250, 410, 300, 50})) { CloseWindow(); return 0; }
+                    if (gameDimension > 0 ) {
+                        board = new GameBoard(gameDimension); 
+                        currentScreen = GAMEPLAY;
+                    }
+                } break;
+                case GAMEPLAY: {} break; 
+                case GAME_OVER: {} break;
+            }
+        }
         BeginDrawing();
         ClearBackground(RAYWHITE);
-        DrawText("Initial Setup", 10, 10, 20, DARKGRAY);
+        switch (currentScreen){
+            case MENU: {
+                DrawText("MEMORY MATCH", 170, 100, 70, DARKGRAY);
+                DrawRectangle(250, 200, 300, 50, LIGHTGRAY); DrawText("Easy", 335, 215, 20, BLACK);
+                DrawRectangle(250, 270, 300, 50, LIGHTGRAY); DrawText("Medium", 320, 285, 20, BLACK);
+                DrawRectangle(250, 340, 300, 50, LIGHTGRAY); DrawText("Hard", 335, 355, 20, BLACK);
+                DrawRectangle(250, 410, 300, 50, MAROON); DrawText("Quit", 370, 425, 20, WHITE);
+            } break;
+            case GAMEPLAY: {} break;
+            case GAME_OVER: {} break;
+        }
         EndDrawing();
+    }
+    if (board != nullptr){
+        delete board;
     }
     CloseWindow();
     return 0;
