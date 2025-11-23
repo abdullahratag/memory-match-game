@@ -62,14 +62,26 @@ int main(void) {
                     }
                 }
             } break;
-            case GAME_OVER: {  } break;
+            case GAME_OVER: {
+                 if(IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
+                    if(CheckCollisionPointRec(mousePoint, {250,350,300,50}))
+                    {
+                        delete board;
+                        board = nullptr;
+                        gameDimension = 0;
+                        currentScreen = MENU;
+                    }
+                }
+              } break;
         }
 
         BeginDrawing();
         ClearBackground(RAYWHITE);
         switch (currentScreen) {
             case MENU: {
-                DrawText("MEMORY MATCH", 170, 100, 70, DARKGRAY);
+                int titleWidth = MeasureText("MEMORY MATCH", 70);
+                DrawText("MEMORY MATCH", (screenWidth / 2) - (titleWidth / 2), 100, 70, DARKGRAY);
+
                 DrawRectangle(250, 200, 300, 50, LIGHTGRAY); DrawText("Easy (2x2)", 335, 215, 20, BLACK);
                 DrawRectangle(250, 270, 300, 50, LIGHTGRAY); DrawText("Medium (4x4)", 320, 285, 20, BLACK);
                 DrawRectangle(250, 340, 300, 50, LIGHTGRAY); DrawText("Hard (6x6)", 335, 355, 20, BLACK);
@@ -98,7 +110,17 @@ int main(void) {
                 int totalPairs = (gameDimension * gameDimension) / 2;
                 DrawText(TextFormat("Matches: %d / %d", matchesFound, totalPairs), screenWidth - 250, 20, 30, DARKGRAY);
             } break;
-            case GAME_OVER: {  } break;
+            case GAME_OVER: { 
+                int goodJobWidth = MeasureText("Good Job!", 70);
+                DrawText("Good Job!", (screenWidth / 2) - (goodJobWidth / 2), 200 , 70, GOLD);
+
+                const char* finishedText = TextFormat("You finished in %d turns!", turns);
+                int finishedTextWidth = MeasureText(finishedText, 30);
+                DrawText(finishedText, (screenWidth / 2) - (finishedTextWidth / 2), 280, 30, DARKGRAY);
+                DrawRectangle(250,350,300,50, LIGHTGRAY);
+                DrawText("Back to Menu", 310, 365, 20, BLACK);
+               
+             } break;
         }
         EndDrawing();
     }
