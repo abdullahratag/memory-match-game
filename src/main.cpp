@@ -76,15 +76,15 @@ int main(void) {
         }
 
         BeginDrawing();
-        ClearBackground(RAYWHITE);
+        ClearBackground(DARKGRAY);
         switch (currentScreen) {
             case MENU: {
                 int titleWidth = MeasureText("MEMORY MATCH", 70);
-                DrawText("MEMORY MATCH", (screenWidth / 2) - (titleWidth / 2), 100, 70, DARKGRAY);
+                DrawText("MEMORY MATCH", (screenWidth / 2) - (titleWidth / 2), 100, 70, RED);
 
-                DrawRectangle(250, 200, 300, 50, LIGHTGRAY); DrawText("Easy (2x2)", 335, 215, 20, BLACK);
-                DrawRectangle(250, 270, 300, 50, LIGHTGRAY); DrawText("Medium (4x4)", 320, 285, 20, BLACK);
-                DrawRectangle(250, 340, 300, 50, LIGHTGRAY); DrawText("Hard (6x6)", 335, 355, 20, BLACK);
+                DrawRectangle(250, 200, 300, 50, BLACK); DrawText("Easy (2x2)", 335, 215, 20, RAYWHITE);
+                DrawRectangle(250, 270, 300, 50, BLACK); DrawText("Medium (4x4)", 320, 285, 20, RAYWHITE);
+                DrawRectangle(250, 340, 300, 50, BLACK); DrawText("Hard (6x6)", 335, 355, 20, RAYWHITE);
                 DrawRectangle(250, 410, 300, 50, MAROON); DrawText("Quit", 370, 425, 20, WHITE);
             } break;
             case GAMEPLAY: {
@@ -94,21 +94,21 @@ int main(void) {
                     for (int c = 0; c < gameDimension; ++c) {
                         Rectangle cardRect = {(float)(offsetX + c * cardSize + padding), (float)(offsetY + r * cardSize + padding), (float)(cardSize - 2 * padding), (float)(cardSize - 2 * padding)};
                         if (board->cards[r][c].isFlipped || board->cards[r][c].isMatched) {
-                            DrawRectangleRec(cardRect, WHITE);
-                            DrawRectangleLinesEx(cardRect, 2, board->cards[r][c].isMatched ? GREEN : BLACK);
+                            DrawRectangleRec(cardRect, LIGHTGRAY);
+                            DrawRectangleLinesEx(cardRect, 2, board->cards[r][c].isMatched ? RED : BLACK);
                             std::string val(1, board->cards[r][c].value);
                             int fontSize = cardSize / 2;
                            
                             int textWidth = MeasureText(val.c_str(), fontSize);
                             DrawText(val.c_str(), cardRect.x + cardRect.width / 2 - textWidth / 2, cardRect.y + cardRect.height / 2 - fontSize / 2, fontSize, BLACK);
                         } else {
-                            DrawRectangleRec(cardRect, BLUE);
+                            DrawRectangleRec(cardRect, BLACK);
                         }
                     }
                 }
-                DrawText(TextFormat("Turns: %d", turns), 20, 20, 30, DARKGRAY);
+                DrawText(TextFormat("Turns: %d", turns), 20, 20, 30, RAYWHITE);
                 int totalPairs = (gameDimension * gameDimension) / 2;
-                DrawText(TextFormat("Matches: %d / %d", matchesFound, totalPairs), screenWidth - 250, 20, 30, DARKGRAY);
+                DrawText(TextFormat("Matches: %d / %d", matchesFound, totalPairs), screenWidth - 250, 20, 30, RAYWHITE);
             } break;
             case GAME_OVER: { 
                 int goodJobWidth = MeasureText("Good Job!", 70);
@@ -116,9 +116,9 @@ int main(void) {
 
                 const char* finishedText = TextFormat("You finished in %d turns!", turns);
                 int finishedTextWidth = MeasureText(finishedText, 30);
-                DrawText(finishedText, (screenWidth / 2) - (finishedTextWidth / 2), 280, 30, DARKGRAY);
-                DrawRectangle(250,350,300,50, LIGHTGRAY);
-                DrawText("Back to Menu", 310, 365, 20, BLACK);
+                DrawText(finishedText, (screenWidth / 2) - (finishedTextWidth / 2), 280, 30, RAYWHITE);
+                DrawRectangle(250,350,300,50, BLACK);
+                DrawText("Back to Menu", 310, 365, 20, RAYWHITE);
                
              } break;
         }
