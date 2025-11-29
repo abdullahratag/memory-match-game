@@ -14,6 +14,10 @@ int main(void) {
     int gameDimension = 0; int turns = 0; int matchesFound = 0;
     float flipTimer = 0.0f; const float FLIP_DELAY = 1.0f;
 
+    int highScoreEasy = 999;
+    int highScoreMedium = 999;
+    int highScoreHard = 999;
+
     while (!WindowShouldClose()) {
         Vector2 mousePoint = GetMousePosition();
         switch (currentScreen) {
@@ -52,7 +56,17 @@ int main(void) {
                                         board->cards[pos1.row][pos1.col].isMatched = true; board->cards[pos2.row][pos2.col].isMatched = true;
                                         matchesFound++;
                                         flippedCardsStack.pop(); flippedCardsStack.pop();
-                                        if (board->isGameOver()) { currentScreen = GAME_OVER; }
+                                        if (board->isGameOver()) { 
+
+                                            if (gameDimension == 2 && turns < highScoreEasy){
+                                                highScoreEasy = turns;
+                                            } else if (gameDimension == 4 && turns < highScoreMedium) {
+                                                highScoreMedium = turns;
+                                            } else if (gameDimension == 6 && turns < highScoreHard){
+                                                highScoreHard = turns;
+                                            }
+                                            currentScreen = GAME_OVER; 
+                                        }
                                     } else {
                                         flipTimer = FLIP_DELAY;
                                     }
@@ -86,6 +100,17 @@ int main(void) {
                 DrawRectangle(250, 270, 300, 50, BLACK); DrawText("Medium (4x4)", 320, 285, 20, RAYWHITE);
                 DrawRectangle(250, 340, 300, 50, BLACK); DrawText("Hard (6x6)", 335, 355, 20, RAYWHITE);
                 DrawRectangle(250, 410, 300, 50, MAROON); DrawText("Quit", 370, 425, 20, WHITE);
+               
+                const char* easyScoreText = (highScoreEasy == 999) ? "Best: --" : TextFormat("Best: %d", highScoreEasy);
+                DrawText(easyScoreText, 570, 215, 20, LIGHTGRAY);
+                
+              
+                const char* mediumScoreText = (highScoreMedium == 999) ? "Best: --" : TextFormat("Best: %d", highScoreMedium);
+                DrawText(mediumScoreText, 570, 285, 20, LIGHTGRAY);
+
+                
+                const char* hardScoreText = (highScoreHard == 999) ? "Best: --" : TextFormat("Best: %d", highScoreHard);
+                DrawText(hardScoreText, 570, 355, 20, LIGHTGRAY);
             } break;
             case GAMEPLAY: {
                 int boardSizePixels = 480; int cardSize = boardSizePixels / gameDimension; int padding = 5;
@@ -117,9 +142,19 @@ int main(void) {
                 const char* finishedText = TextFormat("You finished in %d turns!", turns);
                 int finishedTextWidth = MeasureText(finishedText, 30);
                 DrawText(finishedText, (screenWidth / 2) - (finishedTextWidth / 2), 280, 30, RAYWHITE);
+
+                
+                bool isNewHighScore = (gameDimension == 2 && turns == highScoreEasy) ||
+                                      (gameDimension == 4 && turns == highScoreMedium) ||
+                                      (gameDimension == 6 && turns == highScoreHard);
+                if(isNewHighScore && turns != 999){
+                     DrawText("New High Score!", (screenWidth / 2) - (MeasureText("New High Score!", 20)/2), 320, 20, GOLD);
+                }
+
                 DrawRectangle(250,350,300,50, BLACK);
-                DrawText("Back to Menu", 310, 365, 20, RAYWHITE);
-               
+                int backToMenuTextWidth = MeasureText("Back to Menu", 20);
+                DrawText("Back to Menu", (screenWidth / 2) - (backToMenuTextWidth / 2), 365, 20, RAYWHITE);
+   
              } break;
         }
         EndDrawing();
