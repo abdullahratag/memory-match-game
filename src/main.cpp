@@ -17,16 +17,24 @@ int main(void) {
     int highScoreEasy = 999;
     int highScoreMedium = 999;
     int highScoreHard = 999;
+    int highScoreImpossible = 999;
 
+    bool isImpossibleMode = false;
+    
+    
     while (!WindowShouldClose()) {
         Vector2 mousePoint = GetMousePosition();
         switch (currentScreen) {
             case MENU: {
                 if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
+                    isImpossibleMode = false;
+
                     if (CheckCollisionPointRec(mousePoint, {250, 200, 300, 50})) { gameDimension = 2; }
                     if (CheckCollisionPointRec(mousePoint, {250, 270, 300, 50})) { gameDimension = 4; }
                     if (CheckCollisionPointRec(mousePoint, {250, 340, 300, 50})) { gameDimension = 6; }
-                    if (CheckCollisionPointRec(mousePoint, {250, 410, 300, 50})) { CloseWindow(); return 0; }
+                    if (CheckCollisionPointRec(mousePoint, {250, 410, 300, 50})) { gameDimension = 4; isImpossibleMode = true; }
+
+                    if (CheckCollisionPointRec(mousePoint, {250, 480, 300, 50})) { CloseWindow(); return 0; }
                     if (gameDimension > 0) {
                         board = new GameBoard(gameDimension);
                         turns = 0; matchesFound = 0;
@@ -57,18 +65,39 @@ int main(void) {
                                         matchesFound++;
                                         flippedCardsStack.pop(); flippedCardsStack.pop();
                                         if (board->isGameOver()) { 
-
-                                            if (gameDimension == 2 && turns < highScoreEasy){
+                                            
+                                            if (isImpossibleMode && turns < highScoreImpossible) {
+                                                highScoreImpossible = turns;
+                                            } 
+                                            
+                                            else if (!isImpossibleMode && gameDimension == 2 && turns < highScoreEasy) {
                                                 highScoreEasy = turns;
-                                            } else if (gameDimension == 4 && turns < highScoreMedium) {
+                                            } 
+                                            else if (!isImpossibleMode && gameDimension == 4 && turns < highScoreMedium) {
                                                 highScoreMedium = turns;
-                                            } else if (gameDimension == 6 && turns < highScoreHard){
+                                            } 
+                                            else if (!isImpossibleMode && gameDimension == 6 && turns < highScoreHard) {
                                                 highScoreHard = turns;
                                             }
+
+                                            
                                             currentScreen = GAME_OVER; 
                                         }
                                     } else {
+                                        if (isImpossibleMode) {
+                                            for (int r = 0; r < board->dimension; ++r) {
+                                                for (int c = 0; c < board->dimension; ++c) {
+                                                    if (board->cards[r][c].isMatched) {
+                                                        board->cards[r][c].isMatched = false;
+                                                        board->cards[r][c].isFlipped = false; 
+                                                    }
+                                                }
+                                            }
+                                            matchesFound = 0;
+                                        }
+                                      
                                         flipTimer = FLIP_DELAY;
+                                       
                                     }
                                 }
                             }
@@ -76,6 +105,9 @@ int main(void) {
                     }
                 }
             } break;
+                                        
+
+                                        
             case GAME_OVER: {
                  if(IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
                     if(CheckCollisionPointRec(mousePoint, {250,350,300,50}))
@@ -99,7 +131,8 @@ int main(void) {
                 DrawRectangle(250, 200, 300, 50, BLACK); DrawText("Easy (2x2)", 335, 215, 20, RAYWHITE);
                 DrawRectangle(250, 270, 300, 50, BLACK); DrawText("Medium (4x4)", 320, 285, 20, RAYWHITE);
                 DrawRectangle(250, 340, 300, 50, BLACK); DrawText("Hard (6x6)", 335, 355, 20, RAYWHITE);
-                DrawRectangle(250, 410, 300, 50, MAROON); DrawText("Quit", 370, 425, 20, WHITE);
+                DrawRectangle(250, 410, 300, 50, BLACK); DrawText("Impossible", 320, 425, 20, RED);
+                DrawRectangle(250, 480, 300, 50, MAROON); DrawText("Quit", 370, 495, 20, WHITE);
                
                 const char* easyScoreText = (highScoreEasy == 999) ? "Best: --" : TextFormat("Best: %d", highScoreEasy);
                 DrawText(easyScoreText, 570, 215, 20, LIGHTGRAY);
@@ -111,13 +144,20 @@ int main(void) {
                 
                 const char* hardScoreText = (highScoreHard == 999) ? "Best: --" : TextFormat("Best: %d", highScoreHard);
                 DrawText(hardScoreText, 570, 355, 20, LIGHTGRAY);
+
+                const char* impossibleScoreText = (highScoreImpossible == 999) ? "Best: --" : TextFormat("Best: %d",
+                highScoreImpossible);
+                DrawText(impossibleScoreText, 570,425,20, RED);
+
             } break;
             case GAMEPLAY: {
                 int boardSizePixels = 480; int cardSize = boardSizePixels / gameDimension; int padding = 5;
                 int offsetX = (screenWidth - boardSizePixels) / 2; int offsetY = (screenHeight - boardSizePixels) / 2;
                 for (int r = 0; r < gameDimension; ++r) {
                     for (int c = 0; c < gameDimension; ++c) {
-                        Rectangle cardRect = {(float)(offsetX + c * cardSize + padding), (float)(offsetY + r * cardSize + padding), (float)(cardSize - 2 * padding), (float)(cardSize - 2 * padding)};
+                        Rectangle cardRect = {(float)(offsetX + c * cardSize + padding), (float)(offsetY + r * cardSize + padding), 
+                            (float)(cardSize - 2 * padding), (float)(cardSize - 2 * padding)};
+                            
                         if (board->cards[r][c].isFlipped || board->cards[r][c].isMatched) {
                             DrawRectangleRec(cardRect, LIGHTGRAY);
                             DrawRectangleLinesEx(cardRect, 2, board->cards[r][c].isMatched ? RED : BLACK);
@@ -144,9 +184,8 @@ int main(void) {
                 DrawText(finishedText, (screenWidth / 2) - (finishedTextWidth / 2), 280, 30, RAYWHITE);
 
                 
-                bool isNewHighScore = (gameDimension == 2 && turns == highScoreEasy) ||
-                                      (gameDimension == 4 && turns == highScoreMedium) ||
-                                      (gameDimension == 6 && turns == highScoreHard);
+                  bool isNewHighScore = (isImpossibleMode && turns == highScoreImpossible) || (!isImpossibleMode && gameDimension == 2 && turns == highScoreEasy) ||
+                                      (!isImpossibleMode && gameDimension == 4 && turns == highScoreMedium) || (!isImpossibleMode && gameDimension == 6 && turns == highScoreHard);
                 if(isNewHighScore && turns != 999){
                      DrawText("New High Score!", (screenWidth / 2) - (MeasureText("New High Score!", 20)/2), 320, 20, GOLD);
                 }
