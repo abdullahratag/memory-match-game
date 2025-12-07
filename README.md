@@ -21,3 +21,5 @@ This project uses the Raylib VSCode template with a Makefile build system.
 2.  Clone the repository.
 3.  Open the project folder in Visual Studio Code.
 4.  Press **F5** or use the "Run and Debug" panel to compile and run the game.
+
+OR SIMPLY RUN THE EXE FILE
